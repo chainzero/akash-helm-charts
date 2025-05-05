@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: scarruthers/akash-provider-monitor
-  tag: v1.0.28
+  tag: v1.0.34
   pullPolicy: Always
 
 service:
@@ -66,8 +66,14 @@ config:
     ]
   deployerlist: |
     [
-      "akash1deployeraddress...",
-      "akash1anotherdeployer..."
+      {
+        "address": "akash1deployeraddress...",
+        "company": "Example Company"
+      },
+      {
+        "address": "akash1anotherdeployer...",
+        "company": "Another Company"
+      }
     ]
   rpcnodelist: |
     [
