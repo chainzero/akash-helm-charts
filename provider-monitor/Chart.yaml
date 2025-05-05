@@ -1,0 +1,15 @@
+apiVersion: v2
+name: akash-provider-monitor
+version: 0.1.0
+description: A Helm chart for the Akash provider monitoring app
+appVersion: "v1.0.28"
+
+# Optional but recommended fields:
+keywords:
+  - akash
+  - monitoring
+  - tailscale
+  - grpc
+maintainers:
+  - name: Scott Carruthers
+    email: scott@akash.network

@@ -1,0 +1,93 @@
+# values.yaml
+
+replicaCount: 1
+
+image:
+  repository: scarruthers/akash-provider-monitor
+  tag: v1.0.28
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  hosts:
+    - host: providermon.akashnet.net
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []  # add secretName if TLS is managed
+
+resources:
+  requests:
+    cpu: "1"
+    memory: "512Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+readinessProbe:
+  path: /health
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+livenessProbe:
+  path: /health
+  initialDelaySeconds: 10
+  periodSeconds: 15
+
+env:
+  ENABLE_EMAIL_ALERTS: "false"
+
+secrets:
+  SLACK_WEBHOOK_URL: ""
+  TAILSCALE_API_TOKEN: ""
+  GRPC_NODE_ADDRESS: ""
+  SENDGRID_API_KEY: ""
+  SENDGRID_RECIPIENTS: ""
+  SENDGRID_EMAIL_SENDER: ""
+
+configMount:
+  enabled: true
+  name: monitor-config
+  mountPath: /config
+
+config:
+  providerlist: |
+    [
+      "provider1.domain:8444",
+      "provider2.domain:8444"
+    ]
+  deployerlist: |
+    [
+      "akash1deployeraddress...",
+      "akash1anotherdeployer..."
+    ]
+  rpcnodelist: |
+    [
+      {
+        "name": "mainnet-rpc",
+        "endpoint": "https://rpc.akashnet.net:443"
+      }
+    ]
+  tsExcludedDevices: |
+    [
+      "laptop-01",
+      "desktop-02"
+    ]
+  tsExcludedKeywords: |
+    [
+      "phone",
+      "macbook"
+    ]
+  partialFailureExclusions: |
+    [
+      "provider1.domain",
+      "provider2.domain"
+    ]

@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "akash-provider-monitor.fullname" . }}
+  labels:
+    app: {{ include "akash-provider-monitor.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "akash-provider-monitor.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "akash-provider-monitor.name" . }}
+    spec:
+      containers:
+        - name: {{ include "akash-provider-monitor.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: ENABLE_EMAIL_ALERTS
+              value: {{ .Values.env.ENABLE_EMAIL_ALERTS | quote }}
+            - name: SLACK_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "akash-provider-monitor.fullname" . }}-secrets
+                  key: SLACK_WEBHOOK_URL
+            - name: TAILSCALE_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "akash-provider-monitor.fullname" . }}-secrets
+                  key: TAILSCALE_API_TOKEN
+                  optional: true
+            - name: GRPC_NODE_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "akash-provider-monitor.fullname" . }}-secrets
+                  key: GRPC_NODE_ADDRESS
+            - name: SENDGRID_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "akash-provider-monitor.fullname" . }}-secrets
+                  key: SENDGRID_API_KEY
+                  optional: true
+            - name: SENDGRID_RECIPIENTS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "akash-provider-monitor.fullname" . }}-secrets
+                  key: SENDGRID_RECIPIENTS
+                  optional: true
+            - name: SENDGRID_EMAIL_SENDER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "akash-provider-monitor.fullname" . }}-secrets
+                  key: SENDGRID_EMAIL_SENDER
+                  optional: true
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.path }}
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.path }}
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          volumeMounts:
+            - name: monitor-config
+              mountPath: {{ .Values.configMount.mountPath }}
+      volumes:
+        - name: monitor-config
+          configMap:
+            name: {{ .Values.configMount.name }}
+      restartPolicy: Always

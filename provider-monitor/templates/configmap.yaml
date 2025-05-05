@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "akash-provider-monitor.fullname" . }}-config
+  labels:
+    app: {{ include "akash-provider-monitor.name" . }}
+data:
+  providerlist.json: |
+{{ .Values.config.providerlist | indent 4 }}
+  deployerlist.json: |
+{{ .Values.config.deployerlist | indent 4 }}
+  rpcnodelist.json: |
+{{ .Values.config.rpcnodelist | indent 4 }}
+  ts-excluded-devices.json: |
+{{ .Values.config.tsExcludedDevices | indent 4 }}
+  ts-excluded-keywords.json: |
+{{ .Values.config.tsExcludedKeywords | indent 4 }}
+  dns-partial-failure-excluded-providers.json: |
+{{ .Values.config.partialFailureExclusions | indent 4 }}
