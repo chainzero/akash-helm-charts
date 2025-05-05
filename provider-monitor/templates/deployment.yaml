@@ -75,7 +75,7 @@ spec:
             - name: monitor-config
               mountPath: {{ .Values.configMount.mountPath }}
       volumes:
-        - name: monitor-config
+        - name: {{ .Values.configMount.name }}
           configMap:
-            name: {{ .Values.configMount.name }}
+            name: {{ include "akash-provider-monitor.fullname" . }}-config
       restartPolicy: Always
